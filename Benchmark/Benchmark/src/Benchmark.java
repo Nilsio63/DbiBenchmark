@@ -7,7 +7,7 @@ public class Benchmark
 	{
 		try
 		{
-			return DriverManager.getConnection("jdbc:sqlserver://192.168.232.128;databaseName=CAP;IntegratetSecurity=true;", "dbi", "dbi_pass");
+			return DriverManager.getConnection("jdbc:sqlserver://192.168.230.132;", "dbi", "dbi_pass");
 		}
 		catch (SQLException e)
 		{
