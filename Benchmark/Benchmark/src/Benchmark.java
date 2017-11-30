@@ -31,7 +31,7 @@ public class Benchmark
             
             long timeSpan = System.currentTimeMillis() - timePrevious;
             
-            System.out.println("Benötigte Zeit in ms: " + timeSpan);
+            System.out.println("Benötigte Zeit in s: " + (double)timeSpan / 1000);
 
             con.commit();
         }
@@ -95,8 +95,80 @@ public class Benchmark
     }
     
     private static void insertToTables(int n)
+    	throws SQLException
     {
+    	insertBranches(n);
     	
+    	insertAccounts(n);
+    	
+    	insertTellers(n);
+    }
+    
+    private static void insertBranches(int n)
+    	throws SQLException
+    {
+    	for (int i = 0; i < n; i++)
+    	{
+    		Statement stmt = con.createStatement();
+    		
+    		stmt.execute("insert into branches (branchid, branchname, balance, address)"
+    				+ "values (" + (i + 1) + ","
+    				+ "'aaaaaaaaaaaaaaaaaaaa',"
+    				+ "0,"
+    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    		
+//    		System.out.println("insert into branches (branchid, branchname, balance, address)"
+//    				+ "values (" + (i + 1) + ","
+//    				+ "'aaaaaaaaaaaaaaaaaaaa',"
+//    				+ "0,"
+//    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    	}
+    }
+    
+    private static void insertAccounts(int n)
+    	throws SQLException
+    {
+    	for (long i = 0; i < ((long)n * 100000); i++)
+    	{
+			Statement stmt = con.createStatement();
+			
+			stmt.execute("insert into accounts (accid, name, balance, branchid, address)"
+					+ "values (" + (i + 1) + ","
+					+ "'aaaaaaaaaaaaaaaaaaaa'"
+					+ "0,"
+					+ ((int)(Math.random() * n) + 1) + ","
+					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    		
+//    		System.out.println("insert into accounts (accid, name, balance, branchid, address)"
+//					+ "values (" + (i + 1) + ","
+//					+ "'aaaaaaaaaaaaaaaaaaaa'"
+//					+ "0,"
+//					+ ((int)(Math.random() * n) + 1) + ","
+//					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    	}
+    }
+    
+    private static void insertTellers(int n)
+    	throws SQLException
+    {
+    	for (int i = 0; i < n * 10; i++)
+    	{
+    		Statement stmt = con.createStatement();
+    		
+    		stmt.execute("insert into tellers (tellerid, tellername, balance, branchid, address)"
+    				+ " values (" + (i + 1) + ","
+    				+ "'aaaaaaaaaaaaaaaaaaaa',"
+    				+ "0,"
+    				+ ((int)(Math.random() * n) + 1) + ","
+    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    		
+//    		System.out.println("insert into tellers (tellerid, tellername, balance, branchid, address)"
+//    				+ " values (" + (i + 1) + ","
+//    				+ "'aaaaaaaaaaaaaaaaaaaa',"
+//    				+ "0,"
+//    				+ ((int)(Math.random() * n) + 1) + ","
+//    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    	}
     }
 
     private static Connection getConnection()
