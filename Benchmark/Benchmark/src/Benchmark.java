@@ -28,12 +28,12 @@ public class Benchmark
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
+
+            con.commit();
             
             long timeSpan = System.currentTimeMillis() - timePrevious;
             
             System.out.println("Benötigte Zeit in s: " + (double)timeSpan / 1000);
-
-            con.commit();
         }
         catch (SQLException ex)
         {
