@@ -4,6 +4,7 @@ import java.sql.*;
 public class Benchmark
 {
 	private static final Scanner input = new Scanner(System.in);
+	private static Statement stmt;
 	
 	private static Connection con;
 
@@ -12,7 +13,7 @@ public class Benchmark
         System.out.print("n: ");
         int n = input.nextInt();
 
-        createDB(n);;
+        createDB(n);
     }
 
     private static void createDB(int n)
@@ -20,6 +21,8 @@ public class Benchmark
         try
         {
             con = getConnection();
+            
+            stmt = con.createStatement();
             
             dropTables();
 
@@ -52,9 +55,7 @@ public class Benchmark
     
     private static void dropTable(String tableName)
     	throws SQLException
-    {
-    	Statement stmt = con.createStatement();
-    	
+    {    	
     	stmt.execute("if (exists (select *"
         		+ " from information_schema.tables"
         		+ " where table_name = '" + tableName + "'))"
@@ -66,16 +67,15 @@ public class Benchmark
     private static void createTables()
     	throws SQLException
     {
-    	Statement x = con.createStatement();
 
-	    x.execute("create table branches" +
+	    stmt.execute("create table branches" +
 	            "( branchid int not null," +
 	            " branchname char(20) not null," +
 	            " balance int not null," +
 	            " address char(72) not null," +
 	            " primary key (branchid) );");
 	    
-	    x.execute("create table accounts" + 
+	    stmt.execute("create table accounts" + 
 	    		"( accid int not null," + 
 	    		" name char(20) not null," + 
 	    		" balance int not null," + 
@@ -84,7 +84,7 @@ public class Benchmark
 	    		" primary key (accid)," + 
 	    		" foreign key (branchid) references branches ); ");
 	    
-	    x.execute("create table tellers" + 
+	    stmt.execute("create table tellers" + 
 	    		"( tellerid int not null," + 
 	    		" tellername char(20) not null," + 
 	    		" balance int not null," + 
@@ -93,7 +93,7 @@ public class Benchmark
 	    		" primary key (tellerid)," + 
 	    		" foreign key (branchid) references branches );");
 	    
-	    x.execute("create table history" + 
+	    stmt.execute("create table history" + 
 	    		"( accid int not null," + 
 	    		" tellerid int not null," + 
 	    		" delta int not null," + 
@@ -119,9 +119,7 @@ public class Benchmark
     	throws SQLException
     {
     	for (int i = 0; i < n; i++)
-    	{
-    		Statement stmt = con.createStatement();
-    		
+    	{    		
     		stmt.execute("insert into branches (branchid, branchname, balance, address)"
     				+ " values (" + (i + 1) + ","
     				+ "'aaaaaaaaaaaaaaaaaaaa',"
@@ -140,9 +138,7 @@ public class Benchmark
     	throws SQLException
     {
     	for (long i = 0; i < ((long)n * 100000); i++)
-    	{
-			Statement stmt = con.createStatement();
-			
+    	{			
 			stmt.execute("insert into accounts (accid, name, balance, branchid, address)"
 					+ " values (" + (i + 1) + ","
 					+ "'aaaaaaaaaaaaaaaaaaaa',"
@@ -163,9 +159,7 @@ public class Benchmark
     	throws SQLException
     {
     	for (int i = 0; i < n * 10; i++)
-    	{
-    		Statement stmt = con.createStatement();
-    		
+    	{    		
     		stmt.execute("insert into tellers (tellerid, tellername, balance, branchid, address)"
     				+ " values (" + (i + 1) + ","
     				+ "'aaaaaaaaaaaaaaaaaaaa',"
