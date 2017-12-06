@@ -44,10 +44,10 @@ public class Benchmark
     private static void dropTables()
     	throws SQLException
     {
-    	dropTable("branches");
-    	dropTable("accounts");
-    	dropTable("tellers");
     	dropTable("history");
+    	dropTable("tellers");
+    	dropTable("accounts");
+    	dropTable("branches");
     }
     
     private static void dropTable(String tableName)
@@ -123,13 +123,13 @@ public class Benchmark
     		Statement stmt = con.createStatement();
     		
     		stmt.execute("insert into branches (branchid, branchname, balance, address)"
-    				+ "values (" + (i + 1) + ","
+    				+ " values (" + (i + 1) + ","
     				+ "'aaaaaaaaaaaaaaaaaaaa',"
     				+ "0,"
     				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
     		
 //    		System.out.println("insert into branches (branchid, branchname, balance, address)"
-//    				+ "values (" + (i + 1) + ","
+//    				+ " values (" + (i + 1) + ","
 //    				+ "'aaaaaaaaaaaaaaaaaaaa',"
 //    				+ "0,"
 //    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
@@ -144,15 +144,15 @@ public class Benchmark
 			Statement stmt = con.createStatement();
 			
 			stmt.execute("insert into accounts (accid, name, balance, branchid, address)"
-					+ "values (" + (i + 1) + ","
-					+ "'aaaaaaaaaaaaaaaaaaaa'"
+					+ " values (" + (i + 1) + ","
+					+ "'aaaaaaaaaaaaaaaaaaaa',"
 					+ "0,"
 					+ ((int)(Math.random() * n) + 1) + ","
 					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
     		
 //    		System.out.println("insert into accounts (accid, name, balance, branchid, address)"
-//					+ "values (" + (i + 1) + ","
-//					+ "'aaaaaaaaaaaaaaaaaaaa'"
+//					+ " values (" + (i + 1) + ","
+//					+ "'aaaaaaaaaaaaaaaaaaaa',"
 //					+ "0,"
 //					+ ((int)(Math.random() * n) + 1) + ","
 //					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
