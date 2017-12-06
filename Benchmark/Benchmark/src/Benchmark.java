@@ -44,12 +44,23 @@ public class Benchmark
     private static void dropTables()
     	throws SQLException
     {
+    	dropTable("branches");
+    	dropTable("accounts");
+    	dropTable("tellers");
+    	dropTable("history");
+    }
+    
+    private static void dropTable(String tableName)
+    	throws SQLException
+    {
     	Statement stmt = con.createStatement();
-
-        stmt.execute("drop table branches;"
-        		+ " drop table accounts;"
-        		+ " drop table tellers;"
-        		+ " drop table history");
+    	
+    	stmt.execute("if (exists (select *"
+        		+ " from information_schema.tables"
+        		+ " where table_name = '" + tableName + "'))"
+        		+ " begin "
+        		+ " drop table " + tableName + ";"
+        		+ " end");
     }
     
     private static void createTables()
@@ -62,7 +73,7 @@ public class Benchmark
 	            " branchname char(20) not null," +
 	            " balance int not null," +
 	            " address char(72) not null," +
-	            " primary key (branchid) ); ");
+	            " primary key (branchid) );");
 	    
 	    x.execute("create table accounts" + 
 	    		"( accid int not null," + 
