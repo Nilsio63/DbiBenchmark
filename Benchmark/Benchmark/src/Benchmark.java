@@ -183,21 +183,14 @@ public class Benchmark
     }
 
     private static Connection getConnection()
-            throws SQLException
+    		throws SQLException
     {
-        try
-        {
-            Connection con = DriverManager.getConnection("jdbc:sqlserver://192.168.230.132;databaseName=Benchmark;",
-                    "dbi", "dbi_pass");
+        Connection con = DriverManager.getConnection("jdbc:sqlserver://192.168.122.30;databaseName=Benchmark;",
+                "dbi", "dbi_pass");
 
-            con.setAutoCommit(false);
+        con.setAutoCommit(false);
 
-            return con;
-        }
-        catch (SQLException e)
-        {
-            throw new SQLException("JDBC driver not found!" + e.getMessage());
-        }
+        return con;
     }
     
 }
