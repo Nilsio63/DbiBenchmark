@@ -136,9 +136,10 @@ public class Benchmark
     		prepStmt.setInt(3, 0);
     		prepStmt.setString(4, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
-    		prepStmt.executeUpdate();
+    		prepStmt.addBatch();
     	}
     	
+    	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
@@ -160,9 +161,10 @@ public class Benchmark
     		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
     		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
-    		prepStmt.executeUpdate();
+    		prepStmt.addBatch();
     	}
     	
+    	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
@@ -184,9 +186,10 @@ public class Benchmark
     		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
     		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
-    		prepStmt.executeUpdate();
+    		prepStmt.addBatch();
     	}
     	
+    	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
