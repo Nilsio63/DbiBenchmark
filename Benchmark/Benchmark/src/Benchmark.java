@@ -31,7 +31,7 @@ public class Benchmark
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
-            
+
             long timeSpan = System.currentTimeMillis() - timePrevious;
             
             System.out.println("Benötigte Zeit in s: " + (double)timeSpan / 1000);
@@ -75,26 +75,21 @@ public class Benchmark
 	            "( branchid int not null," +
 	            " branchname char(20) not null," +
 	            " balance int not null," +
-	            " address char(72) not null," +
-	            " primary key (branchid) );");
+	            " address char(72) not null );");
 	    
 	    stmt.execute("create table accounts" + 
 	    		"( accid int not null," + 
 	    		" name char(20) not null," + 
 	    		" balance int not null," + 
 	    		" branchid int not null," + 
-	    		" address char(68) not null," + 
-	    		" primary key (accid)," + 
-	    		" foreign key (branchid) references branches ); ");
+	    		" address char(68) not null ); ");
 	    
 	    stmt.execute("create table tellers" + 
 	    		"( tellerid int not null," + 
 	    		" tellername char(20) not null," + 
 	    		" balance int not null," + 
 	    		" branchid int not null," + 
-	    		" address char(68) not null," + 
-	    		" primary key (tellerid)," + 
-	    		" foreign key (branchid) references branches );");
+	    		" address char(68) not null );");
 	    
 	    stmt.execute("create table history" + 
 	    		"( accid int not null," + 
@@ -102,10 +97,7 @@ public class Benchmark
 	    		" delta int not null," + 
 	    		" branchid int not null," + 
 	    		" accbalance int not null," + 
-	    		" cmmnt char(30) not null," + 
-	    		" foreign key (accid) references accounts," + 
-	    		" foreign key (tellerid) references tellers," + 
-	    		" foreign key (branchid) references branches ); ");
+	    		" cmmnt char(30) not null ); ");
 	    
 	    commit();
     }
@@ -113,15 +105,17 @@ public class Benchmark
     private static void insertToTables(int n)
     	throws SQLException
     {
-    	con = getConnection();
+    	buildConnection();
     	
     	insertBranches(n);
     	
     	insertAccounts(n);
     	
     	insertTellers(n);
+    	
+    	addKeys();
 
-    	con.commit();
+    	commit();
     }
     
     private static void insertBranches(int n)
@@ -200,6 +194,32 @@ public class Benchmark
     	
     	prepStmt.executeBatch();
     	prepStmt.close();
+    }
+    
+    private static void addKeys()
+    	throws SQLException
+    {
+    	stmt.addBatch("alter table branches"
+    			+ " add primary key (branchid)");
+    	
+    	stmt.addBatch("alter table accounts"
+    			+ " add primary key (accid)");
+    	stmt.addBatch("alter table accounts"
+    			+ " add foreign key (branchid) references branches (branchid)");
+    	
+    	stmt.addBatch("alter table tellers"
+    			+ " add primary key (tellerid)");
+    	stmt.addBatch("alter table tellers"
+    			+ " add foreign key (branchid) references branches (branchid)");
+    	
+    	stmt.addBatch("alter table history"
+    			+ " add foreign key (accid) references accounts (accid)");
+    	stmt.addBatch("alter table history"
+    			+ " add foreign key (tellerid) references tellers (tellerid)");
+    	stmt.addBatch("alter table history"
+    			+ " add foreign key (branchid) references branches (branchid)");
+    	
+    	stmt.executeBatch();
     }
     
     private static void buildConnection()
