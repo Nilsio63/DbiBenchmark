@@ -28,6 +28,14 @@ public class Benchmark
 
             createTables();
             
+            stmt.close();
+            
+            stmt = null;
+            
+            con.commit();
+            
+            con = getConnection();
+            
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
