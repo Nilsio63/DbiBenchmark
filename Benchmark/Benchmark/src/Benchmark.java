@@ -20,6 +20,8 @@ public class Benchmark
     {
         try
         {
+        	buildConnection();
+        	
             dropTables();
 
             createTables();
@@ -27,6 +29,8 @@ public class Benchmark
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
+            
+            commit();
             
             long timeSpan = System.currentTimeMillis() - timePrevious;
             
@@ -41,14 +45,14 @@ public class Benchmark
     private static void dropTables()
     	throws SQLException
     {
-    	buildConnection();
+    	//buildConnection();
     	
     	dropTable("history");
     	dropTable("tellers");
     	dropTable("accounts");
     	dropTable("branches");
 
-    	commit();
+    	//commit();
     }
     
     private static void dropTable(String tableName)
@@ -65,7 +69,7 @@ public class Benchmark
     private static void createTables()
     	throws SQLException
     {
-    	buildConnection();
+    	//buildConnection();
 
 	    stmt.execute("create table branches" +
 	            "( branchid int not null," +
@@ -103,13 +107,13 @@ public class Benchmark
 	    		" foreign key (tellerid) references tellers," + 
 	    		" foreign key (branchid) references branches ); ");
 	    
-	    commit();
+	    //commit();
     }
     
     private static void insertToTables(int n)
     	throws SQLException
     {
-    	buildConnection();
+    	//buildConnection();
     	
     	insertBranches(n);
     	
@@ -117,7 +121,7 @@ public class Benchmark
     	
     	insertTellers(n);
     	
-    	commit();
+    	//commit();
     }
     
     private static void insertBranches(int n)
@@ -125,27 +129,18 @@ public class Benchmark
     {
     	PreparedStatement prepStmt = con.prepareStatement("insert into branches (branchid, branchname, balance, address)"
     			+ " values (?,"
-				+ "'aaaaaaaaaaaaaaaaaaaa',"
-				+ "0,"
-				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+				+ "?,"
+				+ "?,"
+				+ "?)");
     	
     	for (int i = 0; i < n; i++)
     	{
     		prepStmt.setInt(1, i + 1);
+    		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
+    		prepStmt.setInt(3, 0);
+    		prepStmt.setString(4, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
     		prepStmt.executeUpdate();
-    		
-//    		stmt.execute("insert into branches (branchid, branchname, balance, address)"
-//    				+ " values (" + (i + 1) + ","
-//    				+ "'aaaaaaaaaaaaaaaaaaaa',"
-//    				+ "0,"
-//    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
-    		
-//    		System.out.println("insert into branches (branchid, branchname, balance, address)"
-//    				+ " values (" + (i + 1) + ","
-//    				+ "'aaaaaaaaaaaaaaaaaaaa',"
-//    				+ "0,"
-//    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
     	}
     	
     	prepStmt.close();
@@ -156,31 +151,20 @@ public class Benchmark
     {
     	PreparedStatement prepStmt = con.prepareStatement("insert into accounts (accid, name, balance, branchid, address)"
 					+ " values (?,"
-					+ "'aaaaaaaaaaaaaaaaaaaa',"
-					+ "0,"
 					+ "?,"
-					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+					+ "?,"
+					+ "?,"
+					+ "?)");
     	
     	for (long i = 0; i < ((long)n * 100000); i++)
     	{
     		prepStmt.setLong(1,  i + 1);
-    		prepStmt.setInt(2, ((int)(Math.random() * n) + 1));
+    		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
+    		prepStmt.setInt(3, 0);
+    		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
+    		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
     		prepStmt.executeUpdate();
-    		
-//			stmt.execute("insert into accounts (accid, name, balance, branchid, address)"
-//					+ " values (" + (i + 1) + ","
-//					+ "'aaaaaaaaaaaaaaaaaaaa',"
-//					+ "0,"
-//					+ ((int)(Math.random() * n) + 1) + ","
-//					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
-    		
-//    		System.out.println("insert into accounts (accid, name, balance, branchid, address)"
-//					+ " values (" + (i + 1) + ","
-//					+ "'aaaaaaaaaaaaaaaaaaaa',"
-//					+ "0,"
-//					+ ((int)(Math.random() * n) + 1) + ","
-//					+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
     	}
     	
     	prepStmt.close();
@@ -191,31 +175,20 @@ public class Benchmark
     {
     	PreparedStatement prepStmt = con.prepareStatement("insert into tellers (tellerid, tellername, balance, branchid, address)"
     				+ " values (?,"
-    				+ "'aaaaaaaaaaaaaaaaaaaa',"
-    				+ "0,"
     				+ "?,"
-    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
+    				+ "?,"
+    				+ "?,"
+    				+ "?)");
     	
     	for (int i = 0; i < n * 10; i++)
-    	{    		
+    	{
     		prepStmt.setInt(1, i + 1);
-    		prepStmt.setInt(2, ((int)(Math.random() * n) + 1));
+    		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
+    		prepStmt.setInt(3, 0);
+    		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
+    		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
     		prepStmt.executeUpdate();
-    		
-//    		stmt.execute("insert into tellers (tellerid, tellername, balance, branchid, address)"
-//    				+ " values (" + (i + 1) + ","
-//    				+ "'aaaaaaaaaaaaaaaaaaaa',"
-//    				+ "0,"
-//    				+ ((int)(Math.random() * n) + 1) + ","
-//    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
-    		
-//    		System.out.println("insert into tellers (tellerid, tellername, balance, branchid, address)"
-//    				+ " values (" + (i + 1) + ","
-//    				+ "'aaaaaaaaaaaaaaaaaaaa',"
-//    				+ "0,"
-//    				+ ((int)(Math.random() * n) + 1) + ","
-//    				+ "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')");
     	}
     	
     	prepStmt.close();
