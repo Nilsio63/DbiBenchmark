@@ -20,27 +20,13 @@ public class Benchmark
     {
         try
         {
-            con = getConnection();
-            
-            stmt = con.createStatement();
-            
             dropTables();
 
             createTables();
             
-            stmt.close();
-            
-            stmt = null;
-            
-            con.commit();
-            
-            con = getConnection();
-            
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
-
-            con.commit();
             
             long timeSpan = System.currentTimeMillis() - timePrevious;
             
@@ -55,10 +41,14 @@ public class Benchmark
     private static void dropTables()
     	throws SQLException
     {
+    	buildConnection();
+    	
     	dropTable("history");
     	dropTable("tellers");
     	dropTable("accounts");
     	dropTable("branches");
+
+    	commit();
     }
     
     private static void dropTable(String tableName)
@@ -75,6 +65,7 @@ public class Benchmark
     private static void createTables()
     	throws SQLException
     {
+    	buildConnection();
 
 	    stmt.execute("create table branches" +
 	            "( branchid int not null," +
@@ -111,16 +102,22 @@ public class Benchmark
 	    		" foreign key (accid) references accounts," + 
 	    		" foreign key (tellerid) references tellers," + 
 	    		" foreign key (branchid) references branches ); ");
+	    
+	    commit();
     }
     
     private static void insertToTables(int n)
     	throws SQLException
     {
+    	buildConnection();
+    	
     	insertBranches(n);
     	
     	insertAccounts(n);
     	
     	insertTellers(n);
+    	
+    	commit();
     }
     
     private static void insertBranches(int n)
@@ -223,9 +220,29 @@ public class Benchmark
     	
     	prepStmt.close();
     }
+    
+    private static void buildConnection()
+    	throws SQLException
+    {
+    	con = getConnection();
+    	
+    	stmt = con.createStatement();
+    }
+    
+    private static void commit()
+    	throws SQLException
+    {
+    	stmt.close();
+    	
+    	stmt = null;
+    	
+    	con.commit();
+    	
+    	con = null;
+    }
 
     private static Connection getConnection()
-    		throws SQLException
+        	throws SQLException
     {
         Connection con = DriverManager.getConnection("jdbc:sqlserver://192.168.122.30;databaseName=Benchmark;",
                 "dbi", "dbi_pass");
