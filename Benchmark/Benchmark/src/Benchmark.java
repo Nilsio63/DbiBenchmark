@@ -20,8 +20,6 @@ public class Benchmark
     {
         try
         {
-        	buildConnection();
-        	
             dropTables();
 
             createTables();
@@ -29,8 +27,6 @@ public class Benchmark
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
-            
-            commit();
             
             long timeSpan = System.currentTimeMillis() - timePrevious;
             
@@ -45,14 +41,14 @@ public class Benchmark
     private static void dropTables()
     	throws SQLException
     {
-    	//buildConnection();
+    	buildConnection();
     	
     	dropTable("history");
     	dropTable("tellers");
     	dropTable("accounts");
     	dropTable("branches");
 
-    	//commit();
+    	commit();
     }
     
     private static void dropTable(String tableName)
@@ -69,7 +65,7 @@ public class Benchmark
     private static void createTables()
     	throws SQLException
     {
-    	//buildConnection();
+    	buildConnection();
 
 	    stmt.execute("create table branches" +
 	            "( branchid int not null," +
@@ -107,21 +103,21 @@ public class Benchmark
 	    		" foreign key (tellerid) references tellers," + 
 	    		" foreign key (branchid) references branches ); ");
 	    
-	    //commit();
+	    commit();
     }
     
     private static void insertToTables(int n)
     	throws SQLException
     {
-    	//buildConnection();
+    	con = getConnection();
     	
     	insertBranches(n);
     	
     	insertAccounts(n);
     	
     	insertTellers(n);
-    	
-    	//commit();
+
+    	con.commit();
     }
     
     private static void insertBranches(int n)
