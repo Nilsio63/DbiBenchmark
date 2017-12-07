@@ -129,9 +129,9 @@ public class Benchmark
 				+ "?,"
 				+ "?)");
     	
-    	for (int i = 0; i < n; i++)
+    	for (int i = 1; i <= n; i++)
     	{
-    		prepStmt.setInt(1, i + 1);
+    		prepStmt.setInt(1, i);
     		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
     		prepStmt.setInt(3, 0);
     		prepStmt.setString(4, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -153,18 +153,23 @@ public class Benchmark
 					+ "?,"
 					+ "?)");
     	
-    	for (long i = 0; i < ((long)n * 100000); i++)
+    	for (long i = 1; i <= ((long)n * 100000); i++)
     	{
-    		prepStmt.setLong(1,  i + 1);
+    		prepStmt.setLong(1,  i);
     		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
     		prepStmt.setInt(3, 0);
     		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
     		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
     		prepStmt.addBatch();
+    		
+    		if (i % 25000 == 0)
+    		{
+    			prepStmt.executeBatch();
+    		}
     	}
     	
-    	prepStmt.executeBatch();
+//    	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
@@ -178,9 +183,9 @@ public class Benchmark
     				+ "?,"
     				+ "?)");
     	
-    	for (int i = 0; i < n * 10; i++)
+    	for (int i = 1; i <= n * 10; i++)
     	{
-    		prepStmt.setInt(1, i + 1);
+    		prepStmt.setInt(1, i);
     		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
     		prepStmt.setInt(3, 0);
     		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
