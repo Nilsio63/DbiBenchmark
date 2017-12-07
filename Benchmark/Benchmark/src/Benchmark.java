@@ -24,6 +24,8 @@ public class Benchmark
 
             createTables();
             
+            System.out.println("Zeitmessung startet!");
+            
             long timePrevious = System.currentTimeMillis();
             
             insertToTables(n);
@@ -163,7 +165,7 @@ public class Benchmark
     		
     		prepStmt.addBatch();
     		
-    		if (i % 25000 == 0)
+    		if (i % 2500 == 0)
     		{
     			prepStmt.executeBatch();
     		}
