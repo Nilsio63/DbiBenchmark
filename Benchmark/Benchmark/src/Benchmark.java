@@ -4,8 +4,10 @@ import java.sql.*;
 public class Benchmark
 {
 	private static final Scanner input = new Scanner(System.in);
-	private static Statement stmt;
 	
+	private static final java.util.SplittableRandom random = new java.util.SplittableRandom();
+	
+	private static Statement stmt;
 	private static Connection con;
 
     public static void main(String[] args)
@@ -160,9 +162,9 @@ public class Benchmark
     		prepStmt.setLong(1,  i);
     		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
     		prepStmt.setInt(3, 0);
-    		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
+    		prepStmt.setInt(4, random.nextInt(n) + 1);
     		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-    		
+
     		prepStmt.addBatch();
     		
     		if (i % 2500 == 0)
@@ -190,7 +192,7 @@ public class Benchmark
     		prepStmt.setInt(1, i);
     		prepStmt.setString(2, "aaaaaaaaaaaaaaaaaaaa");
     		prepStmt.setInt(3, 0);
-    		prepStmt.setInt(4, ((int)(Math.random() * n) + 1));
+    		prepStmt.setInt(4, random.nextInt(n) + 1);
     		prepStmt.setString(5, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     		
     		prepStmt.addBatch();
