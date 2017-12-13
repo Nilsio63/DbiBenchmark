@@ -1,6 +1,12 @@
 import java.util.*;
 import java.sql.*;
 
+/**
+ * Programm zur Erstellung von den Tabellen "Accounts", "Branches", "Tellers" und "History" und
+ * Insterts in die einzelnen Tabellen in abhängigkeit von einem Übergabeparameter "n" durhc den User.
+ * @author Leon Arndt, Nils Balke, Alina Wewering
+ * @version 6.0
+ */
 public class Benchmark
 {
 	private static final Scanner input = new Scanner(System.in);
@@ -17,7 +23,11 @@ public class Benchmark
 
         createDB(n);
     }
-
+    
+    /**
+     * Funktion, welche alle Unterfunktionen zur Erstellung der DB und dem Insert in die DB aufruft.
+     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     */
     private static void createDB(int n)
     {
         try
@@ -42,6 +52,10 @@ public class Benchmark
         }
     }
     
+    /**
+     * Funktion, welche alle Tabellen in der DB löscht.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void dropTables()
     	throws SQLException
     {
@@ -55,6 +69,11 @@ public class Benchmark
     	commit();
     }
     
+    /**
+     * Funktion, welche eine Tabelle löscht.
+     * @param tableName Name der zu löschenden Tabelle
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void dropTable(String tableName)
     	throws SQLException
     {    	
@@ -66,6 +85,10 @@ public class Benchmark
         		+ " end");
     }
     
+    /**
+     * Funktion, welche alle Tabellen erstellt.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void createTables()
     	throws SQLException
     {
@@ -102,6 +125,11 @@ public class Benchmark
 	    commit();
     }
     
+    /**
+     * Funktion, die alle Insert-Funktionen aufruft.
+     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void insertToTables(int n)
     	throws SQLException
     {
@@ -118,6 +146,11 @@ public class Benchmark
     	commit();
     }
     
+    /**
+     * Insertfunktion in die Tabelle Branches.
+     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void insertBranches(int n)
     	throws SQLException
     {
@@ -127,6 +160,9 @@ public class Benchmark
 				+ "?,"
 				+ "?)");
     	
+    	// For-Schleife mit n Durchläufen.
+    	// Setzen der jeweiligen Parameter für das PreparedStatement.
+    	// Hinzufügen des jeweiligen batches.
     	for (int i = 1; i <= n; i++)
     	{
     		prepStmt.setInt(1, i);
@@ -137,10 +173,16 @@ public class Benchmark
     		prepStmt.addBatch();
     	}
     	
+    	// Ausführen der Batches
     	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
+    /**
+     * Insertfunktion in die Tabelle Accounts.
+     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void insertAccounts(int n)
     	throws SQLException
     {
@@ -151,6 +193,9 @@ public class Benchmark
 					+ "?,"
 					+ "?)");
     	
+    	// For-Schleife mit n*100000 Durchläufen.
+    	// Setzen der jeweiligen Parameter für das PreparedStatement.
+    	// Hinzufügen des jeweiligen batches.
     	for (long i = 1; i <= ((long)n * 100000); i++)
     	{
     		prepStmt.setLong(1,  i);
@@ -161,16 +206,21 @@ public class Benchmark
 
     		prepStmt.addBatch();
     		
+    		// Ausführen der Batches nach jeweils 2500 Statements
     		if (i % 2500 == 0)
     		{
     			prepStmt.executeBatch();
     		}
     	}
     	
-//    	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
+    /**
+     * Insertfunktion in die Tabelle Tellers.
+     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void insertTellers(int n)
     	throws SQLException
     {
@@ -181,6 +231,9 @@ public class Benchmark
     				+ "?,"
     				+ "?)");
     	
+    	// For-Schleife mit n*10 Durchläufen.
+    	// Setzen der jeweiligen Parameter für das PreparedStatement.
+    	// Hinzufügen des jeweiligen batches.
     	for (int i = 1; i <= n * 10; i++)
     	{
     		prepStmt.setInt(1, i);
@@ -192,26 +245,35 @@ public class Benchmark
     		prepStmt.addBatch();
     	}
     	
+    	// Ausführen der Batches
     	prepStmt.executeBatch();
     	prepStmt.close();
     }
     
+    /**
+     * Funktion zum setzen der Primär- und Fremdschlüsselparameter in den einzelnen Tabellen.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void addKeys()
     	throws SQLException
     {
+    	// Tabelle Branches
     	stmt.addBatch("alter table branches"
     			+ " add primary key (branchid)");
     	
+    	// Tabelle Accounts
     	stmt.addBatch("alter table accounts"
     			+ " add primary key (accid)");
     	stmt.addBatch("alter table accounts"
     			+ " add foreign key (branchid) references branches (branchid)");
     	
+    	// Tabelle Tellers
     	stmt.addBatch("alter table tellers"
     			+ " add primary key (tellerid)");
     	stmt.addBatch("alter table tellers"
     			+ " add foreign key (branchid) references branches (branchid)");
     	
+    	// Tabelle History
     	stmt.addBatch("alter table history"
     			+ " add foreign key (accid) references accounts (accid)");
     	stmt.addBatch("alter table history"
@@ -219,9 +281,14 @@ public class Benchmark
     	stmt.addBatch("alter table history"
     			+ " add foreign key (branchid) references branches (branchid)");
     	
+    	// Ausführen der Batches
     	stmt.executeBatch();
     }
     
+    /**
+     * Funktion zur Speicherung der Verbindungsdaten in lokale Variablen.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void buildConnection()
     	throws SQLException
     {
@@ -230,6 +297,10 @@ public class Benchmark
     	stmt = con.createStatement();
     }
     
+    /**
+     * Funktion zur Ausführung der aktuellen Verbindung.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static void commit()
     	throws SQLException
     {
@@ -242,6 +313,11 @@ public class Benchmark
     	con = null;
     }
 
+    /**
+     * Funktion zur Erstellung einer neunen Instance einer neuen Verbindung zur DB.
+     * @return Gibt ein Connectionobjekt zurück.
+     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
+     */
     private static Connection getConnection()
         	throws SQLException
     {
