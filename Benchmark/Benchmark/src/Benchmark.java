@@ -2,8 +2,8 @@ import java.util.*;
 import java.sql.*;
 
 /**
- * Programm zur Erstellung von den Tabellen "Accounts", "Branches", "Tellers" und "History" und
- * Insterts in die einzelnen Tabellen in abhängigkeit von einem Übergabeparameter "n" durhc den User.
+ * Programm zur Erstellung der Tabellen "Accounts", "Branches", "Tellers" und "History" und
+ * Insterts in die einzelnen Tabellen in Abhängigkeit von einem Übergabeparameter "n" durch den User.
  * @author Leon Arndt, Nils Balke, Alina Wewering
  * @version 6.0
  */
@@ -16,6 +16,10 @@ public class Benchmark
 	private static Statement stmt;
 	private static Connection con;
 
+	/**
+	 * Hauptroutine des Programms.
+	 * @param args Nicht verwendete Anwendungsparameter.
+	 */
     public static void main(String[] args)
     {
         System.out.print("n: ");
@@ -25,8 +29,8 @@ public class Benchmark
     }
     
     /**
-     * Funktion, welche alle Unterfunktionen zur Erstellung der DB und dem Insert in die DB aufruft.
-     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * Erstellt die Benachmark-Datenbank und füllt diese mit Daten.
+     * @param n Parameter zum Konfigurieren der Anzahl an einzufügenden Datensätzen.
      */
     private static void createDB(int n)
     {
@@ -53,7 +57,7 @@ public class Benchmark
     }
     
     /**
-     * Funktion, welche alle Tabellen in der DB löscht.
+     * Methode zum Löschen aller Tabellen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void dropTables()
@@ -70,8 +74,8 @@ public class Benchmark
     }
     
     /**
-     * Funktion, welche eine Tabelle löscht.
-     * @param tableName Name der zu löschenden Tabelle
+     * Methode zum Löschen der gegebenen Tabelle.
+     * @param tableName Der Name der zu löschenden Tabelle
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void dropTable(String tableName)
@@ -86,7 +90,7 @@ public class Benchmark
     }
     
     /**
-     * Funktion, welche alle Tabellen erstellt.
+     * Methode zum Erstellen aller Tabellen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void createTables()
@@ -126,8 +130,8 @@ public class Benchmark
     }
     
     /**
-     * Funktion, die alle Insert-Funktionen aufruft.
-     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * Methode zum Einfügen aller Datensätze.
+     * @param n Parameter zum Konfigurieren der Anzahl an einzufügenden Datensätzen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void insertToTables(int n)
@@ -148,7 +152,7 @@ public class Benchmark
     
     /**
      * Insertfunktion in die Tabelle Branches.
-     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @param n Parameter zum Konfigurieren der Anzahl an einzufügenden Datensätzen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void insertBranches(int n)
@@ -162,7 +166,7 @@ public class Benchmark
     	
     	// For-Schleife mit n Durchläufen.
     	// Setzen der jeweiligen Parameter für das PreparedStatement.
-    	// Hinzufügen des jeweiligen batches.
+    	// Hinzufügen des jeweiligen Batches.
     	for (int i = 1; i <= n; i++)
     	{
     		prepStmt.setInt(1, i);
@@ -180,7 +184,7 @@ public class Benchmark
     
     /**
      * Insertfunktion in die Tabelle Accounts.
-     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @param n Parameter zum Konfigurieren der Anzahl an einzufügenden Datensätzen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void insertAccounts(int n)
@@ -193,7 +197,7 @@ public class Benchmark
 					+ "?,"
 					+ "?)");
     	
-    	// For-Schleife mit n*100000 Durchläufen.
+    	// For-Schleife mit n*100.000 Durchläufen.
     	// Setzen der jeweiligen Parameter für das PreparedStatement.
     	// Hinzufügen des jeweiligen batches.
     	for (long i = 1; i <= ((long)n * 100000); i++)
@@ -218,7 +222,7 @@ public class Benchmark
     
     /**
      * Insertfunktion in die Tabelle Tellers.
-     * @param n Parameter, der für die Anzahl an Inserts verantwortlich ist.
+     * @param n Parameter zum Konfigurieren der Anzahl an einzufügenden Datensätzen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void insertTellers(int n)
@@ -251,7 +255,7 @@ public class Benchmark
     }
     
     /**
-     * Funktion zum setzen der Primär- und Fremdschlüsselparameter in den einzelnen Tabellen.
+     * Methode zum Erstellen der Primär- und Fremdschlüssel in den einzelnen Tabellen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void addKeys()
@@ -286,7 +290,7 @@ public class Benchmark
     }
     
     /**
-     * Funktion zur Speicherung der Verbindungsdaten in lokale Variablen.
+     * Funktion zum Initialisieren der Verbindungsdaten in lokale Variablen.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void buildConnection()
@@ -298,7 +302,7 @@ public class Benchmark
     }
     
     /**
-     * Funktion zur Ausführung der aktuellen Verbindung.
+     * Funktion zum Bestätigen der aktuellen Verbindung.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static void commit()
@@ -314,8 +318,8 @@ public class Benchmark
     }
 
     /**
-     * Funktion zur Erstellung einer neunen Instance einer neuen Verbindung zur DB.
-     * @return Gibt ein Connectionobjekt zurück.
+     * Funktion zur Erstellung einer neuen Verbindung zur Datenbank.
+     * @return Gibt die Insatnz des neuen Verbindungsobjekts zurück.
      * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
      */
     private static Connection getConnection()
