@@ -8,24 +8,95 @@ public class LastTransaktion
 {
 	private static Connection con;
 	
+	private static final java.util.SplittableRandom random = new java.util.SplittableRandom();
+	
 	public static void main(String[] args)
 	{
 		try
 		{
 			con = getConnection();
 			
-			System.out.print("kontostand(1): ");
-			System.out.println(kontostand(1));
-			System.out.print("einzahlung(1, 1, 1, 10): ");
-			System.out.println(einzahlung(1, 1, 1, 10));
-			System.out.print("analyse(10): ");
-			System.out.println(analyse(10));
+			long time = System.currentTimeMillis();
+			
+			while ((System.currentTimeMillis() - time) < 4000)
+			{
+				executeRandom();
+				
+				Thread.sleep(50);
+			}
+			
+			time = System.currentTimeMillis();
+			
+			int count = 0;
+			
+			while ((System.currentTimeMillis() - time) < 5000)
+			{
+				executeRandom();
+				
+				count++;
+				
+				Thread.sleep(50);
+			}
+
+			time = System.currentTimeMillis();
+			
+			while ((System.currentTimeMillis() - time) < 1000)
+			{
+				executeRandom();
+				
+				Thread.sleep(50);
+			}
+			
+			System.out.println("Anzahl: " + count);
+			
+			//System.out.print("kontostand(1): ");
+			//System.out.println(kontostand(1));
+			//System.out.print("einzahlung(1, 1, 1, 10): ");
+			//System.out.println(einzahlung(1, 1, 1, 10));
+			//System.out.print("analyse(10): ");
+			//System.out.println(analyse(10));
 			
 			con.commit();
 		}
 		catch (SQLException ex)
 		{
 			System.out.println("SQLException: " + ex.getMessage());
+		}
+		catch (InterruptedException ex)
+		{
+			System.out.println("InterruptedException: " + ex.getMessage());
+		}
+	}
+	
+	private static void executeRandom()
+		throws SQLException
+	{
+		int rng = random.nextInt(0, 19);
+		
+		if (rng < 3)
+		{
+			int delta = random.nextInt(1, 10000);
+			int count = analyse(delta);
+			
+			System.out.println("analyse(" + delta + ") = " + count);
+		}
+		else if (rng < 10)
+		{
+			int accid = random.nextInt(1, 10000000);
+			int accbalance = kontostand(accid);
+			
+			System.out.println("kontostand(" + accid + ") = " + accbalance);
+		}
+		else
+		{
+			int accid = random.nextInt(1, 10000000);
+			int tellerid = random.nextInt(1, 1000);
+			int branchid = random.nextInt(1, 100);
+			int delta = random.nextInt(1, 10000);
+			int accbalance = einzahlung(accid, tellerid, branchid, delta);
+			
+			System.out.println("einzahlung(" + accid + ", " + tellerid
+					+ ", " + branchid + ", " + delta + ") = " + accbalance);
 		}
 	}
 	
