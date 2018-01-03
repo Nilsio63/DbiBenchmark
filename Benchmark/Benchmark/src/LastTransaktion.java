@@ -1,62 +1,48 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class LastTransaktion
 {
-	private static Connection con;
-	
-	private static final java.util.SplittableRandom random = new java.util.SplittableRandom();
-	
 	public static void main(String[] args)
 	{
 		try
 		{
-			con = getConnection();
+			Last.buildConnection();
 			
-			long time = System.currentTimeMillis();
-			
-			while ((System.currentTimeMillis() - time) < 4000)
-			{
-				executeRandom();
-				
-				Thread.sleep(50);
-			}
-			
-			time = System.currentTimeMillis();
-			
-			int count = 0;
-			
-			while ((System.currentTimeMillis() - time) < 5000)
-			{
-				executeRandom();
-				
-				count++;
-				
-				Thread.sleep(50);
-			}
+			Last last1 = new Last();
+			Last last2 = new Last();
+			Last last3 = new Last();
+			Last last4 = new Last();
+			Last last5 = new Last();
 
-			time = System.currentTimeMillis();
+			last1.start();
+			last2.start();
+			last3.start();
+			last4.start();
+			last5.start();
 			
-			while ((System.currentTimeMillis() - time) < 1000)
-			{
-				executeRandom();
-				
-				Thread.sleep(50);
-			}
+			last1.join();
+			last2.join();
+			last3.join();
+			last4.join();
+			last5.join();
 			
-			System.out.println("Anzahl: " + count);
+			int anzahlGesamt = last1.anzahl
+					+ last2.anzahl
+					+ last3.anzahl
+					+ last4.anzahl
+					+ last5.anzahl;
 			
-			//System.out.print("kontostand(1): ");
-			//System.out.println(kontostand(1));
-			//System.out.print("einzahlung(1, 1, 1, 10): ");
-			//System.out.println(einzahlung(1, 1, 1, 10));
-			//System.out.print("analyse(10): ");
-			//System.out.println(analyse(10));
+			double tpsSchnitt = (last1.tps
+					+ last2.tps
+					+ last3.tps
+					+ last4.tps
+					+ last5.tps) / 5;
 			
-			con.commit();
+			System.out.println();
+			System.out.println("Anzahl Gesamt: " + anzahlGesamt);
+			System.out.println("TPS Durchschnitt: " + tpsSchnitt);
+			
+			Last.commitConnection();
 		}
 		catch (SQLException ex)
 		{
@@ -67,92 +53,5 @@ public class LastTransaktion
 			System.out.println("InterruptedException: " + ex.getMessage());
 		}
 	}
-	
-	private static void executeRandom()
-		throws SQLException
-	{
-		int rng = random.nextInt(0, 19);
-		
-		if (rng < 3)
-		{
-			int delta = random.nextInt(1, 10000);
-			int count = analyse(delta);
-			
-			System.out.println("analyse(" + delta + ") = " + count);
-		}
-		else if (rng < 10)
-		{
-			int accid = random.nextInt(1, 10000000);
-			int accbalance = kontostand(accid);
-			
-			System.out.println("kontostand(" + accid + ") = " + accbalance);
-		}
-		else
-		{
-			int accid = random.nextInt(1, 10000000);
-			int tellerid = random.nextInt(1, 1000);
-			int branchid = random.nextInt(1, 100);
-			int delta = random.nextInt(1, 10000);
-			int accbalance = einzahlung(accid, tellerid, branchid, delta);
-			
-			System.out.println("einzahlung(" + accid + ", " + tellerid
-					+ ", " + branchid + ", " + delta + ") = " + accbalance);
-		}
-	}
-	
-	private static int kontostand(int accid)
-		throws SQLException
-	{
-		Statement stmt = con.createStatement();
-		
-		ResultSet set = stmt.executeQuery("select balance from accounts where accid = " + accid);
-		
-		set.next();
-
-		return set.getInt("balance");
-	}
-	
-	private static int einzahlung(int accid, int tellerid, int branchid, int delta)
-		throws SQLException
-	{
-		Statement stmt = con.createStatement();
-		
-		stmt.execute("update branches set balance = balance + " + delta + " where branchid = " + branchid);
-		stmt.execute("update tellers set balance = balance + " + delta + " where tellerid = " + tellerid);
-		stmt.execute("update accounts set balance = balance + " + delta + " where accid = " + accid);
-		int accbalance = kontostand(accid);
-		stmt.execute("insert into history (accid, tellerid, delta, branchid, accbalance, cmmnt)"
-				+ " values (" + accid + ", " + tellerid + ", " + delta + ", " + branchid + ", " + accbalance + ", '')");
-
-		return accbalance;
-	}
-	
-	private static int analyse(int delta)
-		throws SQLException
-	{
-		Statement stmt = con.createStatement();
-		
-		ResultSet set = stmt.executeQuery("select count(*) as anz from history where delta = " + delta);
-		
-		set.next();
-		
-		return set.getInt("anz");
-	}
-
-    /**
-     * Funktion zur Erstellung einer neuen Verbindung zur Datenbank.
-     * @return Gibt die Insatnz des neuen Verbindungsobjekts zurück.
-     * @throws SQLException Fehlermeldungen werden nach oben durchgereicht.
-     */
-    private static Connection getConnection()
-        	throws SQLException
-    {
-        Connection con = DriverManager.getConnection("jdbc:sqlserver://192.168.122.30;databaseName=Benchmark;",
-                "dbi", "dbi_pass");
-
-        con.setAutoCommit(false);
-
-        return con;
-    }
 
 }
