@@ -13,13 +13,25 @@ public class Last extends Thread
 	public int anzahl;
 	public double tps;
 	
-	public static void buildConnection()
+	public static void init()
 		throws SQLException
 	{
 		con = getConnection();
+		
+		clearHistory();
 	}
 	
-	public static void commitConnection()
+	private static void clearHistory()
+		throws SQLException
+	{
+		Statement stmt = con.createStatement();
+		
+		stmt.execute("delete from history");
+		
+		stmt.close();
+	}
+	
+	public static void commit()
 		throws SQLException
 	{
 		con.commit();
@@ -48,7 +60,7 @@ public class Last extends Thread
 		{
 			long time = System.currentTimeMillis();
 			
-			while ((System.currentTimeMillis() - time) < 4000)
+			while ((System.currentTimeMillis() - time) < 240000)
 			{
 				executeRandom();
 				
@@ -59,7 +71,7 @@ public class Last extends Thread
 			
 			int count = 0;
 			
-			while ((System.currentTimeMillis() - time) < 5000)
+			while ((System.currentTimeMillis() - time) < 300000)
 			{
 				executeRandom();
 				
@@ -70,7 +82,7 @@ public class Last extends Thread
 	
 			time = System.currentTimeMillis();
 			
-			while ((System.currentTimeMillis() - time) < 1000)
+			while ((System.currentTimeMillis() - time) < 60000)
 			{
 				executeRandom();
 				
@@ -79,7 +91,7 @@ public class Last extends Thread
 			
 			anzahl = count;
 			System.out.println("Anzahl: " + count);
-			tps = (double)count / 5;
+			tps = (double)count / 300;
 			System.out.println("tps: " + tps);
 		}
 		catch (SQLException ex)

@@ -6,7 +6,7 @@ public class LastTransaktion
 	{
 		try
 		{
-			Last.buildConnection();
+			Last.init();
 			
 			Last last1 = new Last();
 			Last last2 = new Last();
@@ -42,7 +42,7 @@ public class LastTransaktion
 			System.out.println("Anzahl Gesamt: " + anzahlGesamt);
 			System.out.println("TPS Durchschnitt: " + tpsSchnitt);
 			
-			Last.commitConnection();
+			Last.commit();
 		}
 		catch (SQLException ex)
 		{
