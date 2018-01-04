@@ -58,40 +58,11 @@ public class Last extends Thread
 	{
 		try
 		{
-			long time = System.currentTimeMillis();
+			executePhase("Einschwingphase", 240);
+			executePhase("Messphase", 300, true);
+			executePhase("Auslaufphase", 60);
 			
-			while ((System.currentTimeMillis() - time) < 240000)
-			{
-				executeRandom();
-				
-				Thread.sleep(50);
-			}
-			
-			time = System.currentTimeMillis();
-			
-			int count = 0;
-			
-			while ((System.currentTimeMillis() - time) < 300000)
-			{
-				executeRandom();
-				
-				count++;
-				
-				Thread.sleep(50);
-			}
-	
-			time = System.currentTimeMillis();
-			
-			while ((System.currentTimeMillis() - time) < 60000)
-			{
-				executeRandom();
-				
-				Thread.sleep(50);
-			}
-			
-			anzahl = count;
-			System.out.println("Anzahl: " + count);
-			tps = (double)count / 300;
+			System.out.println("Anzahl: " + anzahl);
 			System.out.println("tps: " + tps);
 		}
 		catch (SQLException ex)
@@ -101,6 +72,38 @@ public class Last extends Thread
 		catch (InterruptedException ex)
 		{
 			System.out.println("InterruptedException: " + ex.getMessage());
+		}
+	}
+	
+	private void executePhase(String phaseName, int timeInSec)
+		throws SQLException, InterruptedException
+	{
+		executePhase(phaseName, timeInSec, false);
+	}
+	
+	private void executePhase(String phaseName, int timeInSec, boolean setValues)
+		throws SQLException, InterruptedException
+	{
+		System.out.println(phaseName + ": " + timeInSec);
+		
+		int timeSpan = timeInSec * 1000;
+		long timeStart = System.currentTimeMillis();
+		
+		int count = 0;
+
+		while ((System.currentTimeMillis() - timeStart) < timeSpan)
+		{
+			executeRandom();
+			
+			count++;
+			
+			Thread.sleep(50);
+		}
+
+		if (setValues)
+		{
+			anzahl = count;
+			tps = (double)count / timeInSec;
 		}
 	}
 	
