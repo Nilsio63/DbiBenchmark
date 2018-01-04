@@ -32,14 +32,17 @@ public class LastTransaktion
 					+ last4.anzahl
 					+ last5.anzahl;
 			
-			double tpsSchnitt = (last1.tps
+			double tpsGesamt = last1.tps
 					+ last2.tps
 					+ last3.tps
 					+ last4.tps
-					+ last5.tps) / 5;
+					+ last5.tps;
+			
+			double tpsSchnitt = tpsGesamt / 5;
 			
 			System.out.println();
 			System.out.println("Anzahl Gesamt: " + anzahlGesamt);
+			System.out.println("TPS Gesamt: " + tpsGesamt);
 			System.out.println("TPS Durchschnitt: " + tpsSchnitt);
 			
 			Last.commit();

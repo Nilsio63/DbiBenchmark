@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,6 +10,15 @@ public class Last extends Thread
 	private static Connection con;
 	
 	private static final java.util.SplittableRandom random = new java.util.SplittableRandom();
+	
+	private PreparedStatement prepStmtKontostand = null;
+	
+	private PreparedStatement prepStmtEinzahlungAccount = null;
+	private PreparedStatement prepStmtEinzahlungHistory = null;
+	private PreparedStatement prepStmtEinzahlungTellers = null;
+	private PreparedStatement prepStmtEinzahlungBranches = null;
+	
+	private PreparedStatement prepStmtAnalyse = null;
 	
 	public int anzahl;
 	public double tps;
@@ -58,9 +68,9 @@ public class Last extends Thread
 	{
 		try
 		{
-			executePhase("Einschwingphase", 240);
-			executePhase("Messphase", 300, true);
-			executePhase("Auslaufphase", 60);
+			executePhase("Einschwingphase", 4 * 60);
+			executePhase("Messphase", 5 * 60, true);
+			executePhase("Auslaufphase", 1 * 60);
 			
 			System.out.println("Anzahl: " + anzahl);
 			System.out.println("tps: " + tps);
@@ -84,10 +94,12 @@ public class Last extends Thread
 	private void executePhase(String phaseName, int timeInSec, boolean setValues)
 		throws SQLException, InterruptedException
 	{
-		System.out.println(phaseName + ": " + timeInSec);
+		System.out.println(phaseName + ": " + timeInSec + "s");
 		
 		int timeSpan = timeInSec * 1000;
 		long timeStart = System.currentTimeMillis();
+		
+		initPreparedStatements();
 		
 		int count = 0;
 
@@ -99,6 +111,8 @@ public class Last extends Thread
 			
 			Thread.sleep(50);
 		}
+		
+		closePreparedStatements();
 
 		if (setValues)
 		{
@@ -107,7 +121,7 @@ public class Last extends Thread
 		}
 	}
 	
-	private static void executeRandom()
+	private void executeRandom()
 		throws SQLException
 	{
 		int rng = random.nextInt(0, 19);
@@ -139,39 +153,79 @@ public class Last extends Thread
 		}
 	}
 	
-	private static int kontostand(int accid)
+	private void initPreparedStatements()
 		throws SQLException
 	{
-		Statement stmt = con.createStatement();
+		prepStmtKontostand = con.prepareStatement("select balance from accounts where accid = ?");
 		
-		ResultSet set = stmt.executeQuery("select balance from accounts where accid = " + accid);
+		prepStmtEinzahlungAccount = con.prepareStatement("update accounts set balance = balance + ? where accid = ?");
+		prepStmtEinzahlungHistory = con.prepareStatement("insert into history"
+				+ " (accid, tellerid, delta, branchid, accbalance, cmmnt) values (?, ?, ?, ?, ?, ?)");
+		prepStmtEinzahlungTellers = con.prepareStatement("update tellers set balance = balance + ? where tellerid = ?");
+		prepStmtEinzahlungBranches = con.prepareStatement("update branches set balance = balance + ? where branchid = ?");
+		
+		prepStmtAnalyse = con.prepareStatement("select count(*) as anz from history where delta = ?");
+	}
+	
+	private void closePreparedStatements()
+		throws SQLException
+	{
+		prepStmtKontostand.close();
+		
+		prepStmtEinzahlungAccount.close();
+		prepStmtEinzahlungHistory.close();
+		prepStmtEinzahlungTellers.close();
+		prepStmtEinzahlungBranches.close();
+		
+		prepStmtAnalyse.close();
+	}
+	
+	private int kontostand(int accid)
+		throws SQLException
+	{
+		prepStmtKontostand.setInt(1, accid);
+		
+		ResultSet set = prepStmtKontostand.executeQuery();
 		
 		set.next();
 
 		return set.getInt("balance");
 	}
 	
-	private static int einzahlung(int accid, int tellerid, int branchid, int delta)
+	private int einzahlung(int accid, int tellerid, int branchid, int delta)
 		throws SQLException
 	{
-		Statement stmt = con.createStatement();
+		prepStmtEinzahlungAccount.setInt(1, delta);
+		prepStmtEinzahlungAccount.setInt(2, accid);
+		prepStmtEinzahlungAccount.execute();
 		
-		stmt.execute("update accounts set balance = balance + " + delta + " where accid = " + accid);
 		int accbalance = kontostand(accid);
-		stmt.execute("insert into history (accid, tellerid, delta, branchid, accbalance, cmmnt)"
-				+ " values (" + accid + ", " + tellerid + ", " + delta + ", " + branchid + ", " + accbalance + ", '')");
-		stmt.execute("update tellers set balance = balance + " + delta + " where tellerid = " + tellerid);
-		stmt.execute("update branches set balance = balance + " + delta + " where branchid = " + branchid);
+
+		prepStmtEinzahlungHistory.setInt(1, accid);
+		prepStmtEinzahlungHistory.setInt(2, tellerid);
+		prepStmtEinzahlungHistory.setInt(3, delta);
+		prepStmtEinzahlungHistory.setInt(4, branchid);
+		prepStmtEinzahlungHistory.setInt(5, accbalance);
+		prepStmtEinzahlungHistory.setString(6, "");
+		prepStmtEinzahlungHistory.execute();
+		
+		prepStmtEinzahlungTellers.setInt(1, delta);
+		prepStmtEinzahlungTellers.setInt(2, tellerid);
+		prepStmtEinzahlungTellers.execute();
+		
+		prepStmtEinzahlungBranches.setInt(1, delta);
+		prepStmtEinzahlungBranches.setInt(2, branchid);
+		prepStmtEinzahlungBranches.execute();
 
 		return accbalance;
 	}
 	
-	private static int analyse(int delta)
+	private int analyse(int delta)
 		throws SQLException
 	{
-		Statement stmt = con.createStatement();
+		prepStmtAnalyse.setInt(1, delta);
 		
-		ResultSet set = stmt.executeQuery("select count(*) as anz from history where delta = " + delta);
+		ResultSet set = prepStmtAnalyse.executeQuery();
 		
 		set.next();
 		
