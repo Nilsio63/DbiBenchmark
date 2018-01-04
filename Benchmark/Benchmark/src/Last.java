@@ -59,6 +59,8 @@ public class Last extends Thread
                 "dbi", "dbi_pass");
 
         con.setAutoCommit(false);
+        
+        con.setTransactionIsolation(1);
 
         return con;
     }
@@ -68,9 +70,9 @@ public class Last extends Thread
 	{
 		try
 		{
-			executePhase("Einschwingphase", 4 * 60);
-			executePhase("Messphase", 5 * 60, true);
-			executePhase("Auslaufphase", 1 * 60);
+			executePhase("Einschwingphase", 4);
+			executePhase("Messphase", 5, true);
+			executePhase("Auslaufphase", 1);
 			
 			System.out.println("Anzahl: " + anzahl);
 			System.out.println("tps: " + tps);
