@@ -20,8 +20,6 @@ public class Last extends Thread
 	
 	private PreparedStatement prepStmtAnalyse = null;
 	
-	private int counterEinzahlung = 0;
-	
 	public int anzahl;
 	public double tps;
 	
@@ -177,11 +175,8 @@ public class Last extends Thread
 		prepStmtKontostand.close();
 
 		prepStmtEinzahlungAccount.close();
-		prepStmtEinzahlungHistory.executeBatch();
 		prepStmtEinzahlungHistory.close();
-		prepStmtEinzahlungTellers.executeBatch();
 		prepStmtEinzahlungTellers.close();
-		prepStmtEinzahlungBranches.executeBatch();
 		prepStmtEinzahlungBranches.close();
 		
 		prepStmtAnalyse.close();
@@ -214,36 +209,22 @@ public class Last extends Thread
 		prepStmtEinzahlungHistory.setInt(4, branchid);
 		prepStmtEinzahlungHistory.setInt(5, accbalance);
 		prepStmtEinzahlungHistory.setString(6, "");
-		//prepStmtEinzahlungHistory.execute();
-		prepStmtEinzahlungHistory.addBatch();
+		prepStmtEinzahlungHistory.execute();
 		
 		prepStmtEinzahlungTellers.setInt(1, delta);
 		prepStmtEinzahlungTellers.setInt(2, tellerid);
-		//prepStmtEinzahlungTellers.execute();
-		prepStmtEinzahlungTellers.addBatch();
+		prepStmtEinzahlungTellers.execute();
 		
 		prepStmtEinzahlungBranches.setInt(1, delta);
 		prepStmtEinzahlungBranches.setInt(2, branchid);
-		//prepStmtEinzahlungBranches.execute();
-		prepStmtEinzahlungBranches.addBatch();
+		prepStmtEinzahlungBranches.execute();
 		
-		counterEinzahlung++;
-		
-		if (counterEinzahlung % 2500 == 0)
-		{
-			prepStmtEinzahlungHistory.executeBatch();
-			prepStmtEinzahlungTellers.executeBatch();
-			prepStmtEinzahlungBranches.executeBatch();
-		}
-
 		return accbalance;
 	}
 	
 	private int analyse(int delta)
 		throws SQLException
 	{
-		prepStmtEinzahlungHistory.executeBatch();
-		
 		prepStmtAnalyse.setInt(1, delta);
 		
 		ResultSet set = prepStmtAnalyse.executeQuery();
