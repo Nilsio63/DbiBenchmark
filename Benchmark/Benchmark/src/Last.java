@@ -20,6 +20,8 @@ public class Last extends Thread
 	
 	private PreparedStatement prepStmtAnalyse = null;
 	
+	private int counterEinzahlung = 0;
+	
 	public int anzahl;
 	public double tps;
 	
@@ -60,7 +62,7 @@ public class Last extends Thread
 
         con.setAutoCommit(false);
         
-        con.setTransactionIsolation(1);
+        con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 
         return con;
     }
@@ -209,15 +211,27 @@ public class Last extends Thread
 		prepStmtEinzahlungHistory.setInt(4, branchid);
 		prepStmtEinzahlungHistory.setInt(5, accbalance);
 		prepStmtEinzahlungHistory.setString(6, "");
-		prepStmtEinzahlungHistory.execute();
+		//prepStmtEinzahlungHistory.execute();
+		prepStmtEinzahlungHistory.addBatch();
 		
 		prepStmtEinzahlungTellers.setInt(1, delta);
 		prepStmtEinzahlungTellers.setInt(2, tellerid);
-		prepStmtEinzahlungTellers.execute();
+		//prepStmtEinzahlungTellers.execute();
+		prepStmtEinzahlungTellers.addBatch();
 		
 		prepStmtEinzahlungBranches.setInt(1, delta);
 		prepStmtEinzahlungBranches.setInt(2, branchid);
-		prepStmtEinzahlungBranches.execute();
+		//prepStmtEinzahlungBranches.execute();
+		prepStmtEinzahlungBranches.addBatch();
+		
+		counterEinzahlung++;
+		
+		if (counterEinzahlung % 2500 == 0)
+		{
+			prepStmtEinzahlungHistory.executeBatch();
+			prepStmtEinzahlungTellers.executeBatch();
+			prepStmtEinzahlungBranches.executeBatch();
+		}
 
 		return accbalance;
 	}
@@ -225,6 +239,8 @@ public class Last extends Thread
 	private int analyse(int delta)
 		throws SQLException
 	{
+		prepStmtEinzahlungHistory.executeBatch();
+		
 		prepStmtAnalyse.setInt(1, delta);
 		
 		ResultSet set = prepStmtAnalyse.executeQuery();
