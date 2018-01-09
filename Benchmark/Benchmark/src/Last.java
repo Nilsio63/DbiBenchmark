@@ -175,10 +175,13 @@ public class Last extends Thread
 		throws SQLException
 	{
 		prepStmtKontostand.close();
-		
+
 		prepStmtEinzahlungAccount.close();
+		prepStmtEinzahlungHistory.executeBatch();
 		prepStmtEinzahlungHistory.close();
+		prepStmtEinzahlungTellers.executeBatch();
 		prepStmtEinzahlungTellers.close();
+		prepStmtEinzahlungBranches.executeBatch();
 		prepStmtEinzahlungBranches.close();
 		
 		prepStmtAnalyse.close();
