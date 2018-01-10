@@ -3,7 +3,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class Last extends Thread
 {
@@ -27,18 +26,6 @@ public class Last extends Thread
 		throws SQLException
 	{
 		con = getConnection();
-		
-		clearHistory();
-	}
-	
-	private static void clearHistory()
-		throws SQLException
-	{
-		Statement stmt = con.createStatement();
-		
-		stmt.execute("delete from history");
-		
-		stmt.close();
 	}
 	
 	public static void commit()
@@ -70,9 +57,9 @@ public class Last extends Thread
 	{
 		try
 		{
-			executePhase("Einschwingphase", 4 * 60);
-			executePhase("Messphase", 5 * 60, true);
-			executePhase("Auslaufphase", 1 * 60);
+			executePhase("Einschwingphase", 4);
+			executePhase("Messphase", 5, true);
+			executePhase("Auslaufphase", 1);
 			
 			System.out.println("Anzahl: " + anzahl);
 			System.out.println("tps: " + tps);
