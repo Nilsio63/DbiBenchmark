@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.CallableStatement;
 
 public class Last extends Thread
 {
@@ -11,11 +12,6 @@ public class Last extends Thread
 	private static final java.util.SplittableRandom random = new java.util.SplittableRandom();
 	
 	private PreparedStatement prepStmtKontostand = null;
-	
-	private PreparedStatement prepStmtEinzahlungAccount = null;
-	private PreparedStatement prepStmtEinzahlungHistory = null;
-	private PreparedStatement prepStmtEinzahlungTellers = null;
-	private PreparedStatement prepStmtEinzahlungBranches = null;
 	
 	private PreparedStatement prepStmtAnalyse = null;
 	
@@ -47,7 +43,7 @@ public class Last extends Thread
 
         con.setAutoCommit(false);
         
-        con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+        con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
         return con;
     }
@@ -147,12 +143,6 @@ public class Last extends Thread
 	{
 		prepStmtKontostand = con.prepareStatement("select balance from accounts where accid = ?");
 		
-		prepStmtEinzahlungAccount = con.prepareStatement("update accounts set balance = balance + ? where accid = ?");
-		prepStmtEinzahlungHistory = con.prepareStatement("insert into history"
-				+ " (accid, tellerid, delta, branchid, accbalance, cmmnt) values (?, ?, ?, ?, ?, ?)");
-		prepStmtEinzahlungTellers = con.prepareStatement("update tellers set balance = balance + ? where tellerid = ?");
-		prepStmtEinzahlungBranches = con.prepareStatement("update branches set balance = balance + ? where branchid = ?");
-		
 		prepStmtAnalyse = con.prepareStatement("select count(*) as anz from history where delta = ?");
 	}
 	
@@ -160,11 +150,6 @@ public class Last extends Thread
 		throws SQLException
 	{
 		prepStmtKontostand.close();
-
-		prepStmtEinzahlungAccount.close();
-		prepStmtEinzahlungHistory.close();
-		prepStmtEinzahlungTellers.close();
-		prepStmtEinzahlungBranches.close();
 		
 		prepStmtAnalyse.close();
 	}
@@ -184,29 +169,21 @@ public class Last extends Thread
 	private int einzahlung(int accid, int tellerid, int branchid, int delta)
 		throws SQLException
 	{
-		prepStmtEinzahlungAccount.setInt(1, delta);
-		prepStmtEinzahlungAccount.setInt(2, accid);
-		prepStmtEinzahlungAccount.execute();
+		CallableStatement statement = con.prepareCall("{call einzahlung(?,?,?,?,?)}");
 		
-		int accbalance = kontostand(accid);
-
-		prepStmtEinzahlungHistory.setInt(1, accid);
-		prepStmtEinzahlungHistory.setInt(2, tellerid);
-		prepStmtEinzahlungHistory.setInt(3, delta);
-		prepStmtEinzahlungHistory.setInt(4, branchid);
-		prepStmtEinzahlungHistory.setInt(5, accbalance);
-		prepStmtEinzahlungHistory.setString(6, "");
-		prepStmtEinzahlungHistory.execute();
+		statement.setInt(1, accid);
+		statement.setInt(2, tellerid);
+		statement.setInt(3, branchid);
+		statement.setInt(4, delta);
+		statement.registerOutParameter(5, java.sql.Types.INTEGER);
 		
-		prepStmtEinzahlungTellers.setInt(1, delta);
-		prepStmtEinzahlungTellers.setInt(2, tellerid);
-		prepStmtEinzahlungTellers.execute();
+		statement.executeUpdate();
 		
-		prepStmtEinzahlungBranches.setInt(1, delta);
-		prepStmtEinzahlungBranches.setInt(2, branchid);
-		prepStmtEinzahlungBranches.execute();
+		int balance = statement.getInt(5);
 		
-		return accbalance;
+		statement.close();
+		
+		return balance;
 	}
 	
 	private int analyse(int delta)
