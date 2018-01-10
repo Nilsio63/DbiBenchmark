@@ -53,9 +53,9 @@ public class Last extends Thread
 	{
 		try
 		{
-			executePhase("Einschwingphase", 4 * 3);
-			executePhase("Messphase", 5 * 3, true);
-			executePhase("Auslaufphase", 1 * 3);
+			executePhase("Einschwingphase", 4 * 60);
+			executePhase("Messphase", 5 * 60, true);
+			executePhase("Auslaufphase", 1 * 60);
 			
 			System.out.println("Anzahl: " + anzahl);
 			System.out.println("tps: " + tps);
