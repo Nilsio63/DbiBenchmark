@@ -1,5 +1,11 @@
 import java.sql.SQLException;
 
+/**
+ * Programm zum Messen des Transaktionsdurchsatzes einer Benchmark-Datenbank
+ * über 5 parallel laufende Lasten.
+ * @author Leon Arndt, Nils Balke, Alina Wewering
+ * @version 5.0
+ */
 public class LastTransaktion
 {
 	public static void main(String[] args)

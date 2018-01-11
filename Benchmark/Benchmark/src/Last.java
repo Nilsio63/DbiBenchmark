@@ -5,6 +5,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.CallableStatement;
 
+/**
+ * Klasse zum Durchführen der Transaktionen einer einzelnen Last.
+ * @author Leon Arndt, Nils Balke, Alina Wewering
+ * @version 5.0
+ */
 public class Last extends Thread
 {
 	private static Connection con;
@@ -18,16 +23,26 @@ public class Last extends Thread
 	public int anzahl;
 	public double tps;
 	
+	/**
+	 * Initalisiert die statische Verbindung zur Datenbank.
+	 * @throws SQLException
+	 */
 	public static void init()
 		throws SQLException
 	{
 		con = getConnection();
 	}
 	
+	/**
+	 * Führt den Commit der statischen Verbindung durch und schließt diese.
+	 * @throws SQLException
+	 */
 	public static void commit()
 		throws SQLException
 	{
 		con.commit();
+		
+		con.close();
 	}
 
     /**
@@ -48,6 +63,9 @@ public class Last extends Thread
         return con;
     }
 	
+    /**
+     * Laufroutine des Lasten-Threads.
+     */
 	@Override
 	public void run()
 	{
@@ -70,12 +88,27 @@ public class Last extends Thread
 		}
 	}
 	
+	/**
+	 * Führt die Phase mit gegebener Zeitspanne aus.
+	 * @param phaseName Die Bezeichnung der auszuführenden Phase.
+	 * @param timeInSec Die Zeitspanne der Phase in Sekunden.
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 */
 	private void executePhase(String phaseName, int timeInSec)
 		throws SQLException, InterruptedException
 	{
 		executePhase(phaseName, timeInSec, false);
 	}
 	
+	/**
+	 * Führt die Phase mit gegebener Zeitspanne aus.
+	 * @param phaseName Die Bezeichnung der auszuführenden Phase.
+	 * @param timeInSec Die Zeitspanne der Phase in Sekunden.
+	 * @param setValues Gibt an, ob die Ergebnisse der Phase gespeichert werden.
+	 * @throws SQLException
+	 * @throws InterruptedException
+	 */
 	private void executePhase(String phaseName, int timeInSec, boolean setValues)
 		throws SQLException, InterruptedException
 	{
@@ -106,6 +139,10 @@ public class Last extends Thread
 		}
 	}
 	
+	/**
+	 * Führt eine zufällige Transaktion aus.
+	 * @throws SQLException
+	 */
 	private void executeRandom()
 		throws SQLException
 	{
@@ -140,6 +177,10 @@ public class Last extends Thread
 		con.commit();
 	}
 	
+	/**
+	 * Initialisiert die PreparedStatements.
+	 * @throws SQLException
+	 */
 	private void initPreparedStatements()
 		throws SQLException
 	{
@@ -148,6 +189,10 @@ public class Last extends Thread
 		prepStmtAnalyse = con.prepareStatement("select count(*) as anz from history where delta = ?");
 	}
 	
+	/**
+	 * Schließt die PreparedStatements.
+	 * @throws SQLException
+	 */
 	private void closePreparedStatements()
 		throws SQLException
 	{
@@ -156,6 +201,13 @@ public class Last extends Thread
 		prepStmtAnalyse.close();
 	}
 	
+	/**
+	 * Führt die Transaktion 'Kontostand' aus.
+	 * Liest den Kontostand eines gegebenen Accounts aus.
+	 * @param accid Die Id des Accounts.
+	 * @return Gibt den Kontostand des Accounts zurück.
+	 * @throws SQLException
+	 */
 	private int kontostand(int accid)
 		throws SQLException
 	{
@@ -168,6 +220,16 @@ public class Last extends Thread
 		return set.getInt("balance");
 	}
 	
+	/**
+	 * Führt die Transaktion 'Einzahlung' aus.
+	 * Zahlt einen gegebenen Betrag in ein Konto ein.
+	 * @param accid Die Id des Accounts.
+	 * @param tellerid Die Id des verwendeten Geldautomaten.
+	 * @param branchid Die Id der Bank-Filiale.
+	 * @param delta Der einzuzahlende Betrag.
+	 * @return Gibt den aktualisierten Kontostand zurück.
+	 * @throws SQLException
+	 */
 	private int einzahlung(int accid, int tellerid, int branchid, int delta)
 		throws SQLException
 	{
@@ -188,6 +250,13 @@ public class Last extends Thread
 		return balance;
 	}
 	
+	/**
+	 * Führt die Transaktion 'Analyse' aus.
+	 * Zählt die Historien-Einträge mit gegebenem Einzahlungswert.
+	 * @param delta Der zu suchende Einzahlungswert.
+	 * @return Gibt die Anzahl der Datensätze mit gegebenem Einzahlungswert zurück.
+	 * @throws SQLException
+	 */
 	private int analyse(int delta)
 		throws SQLException
 	{
