@@ -37,7 +37,7 @@ public class Last extends Thread
 	 * Führt den Commit der statischen Verbindung durch und schließt diese.
 	 * @throws SQLException
 	 */
-	public static void commit()
+	public static void commitAndClose()
 		throws SQLException
 	{
 		con.commit();

@@ -51,7 +51,7 @@ public class LastTransaktion
 			System.out.println("TPS Gesamt: " + tpsGesamt);
 			System.out.println("TPS Durchschnitt: " + tpsSchnitt);
 			
-			Last.commit();
+			Last.commitAndClose();
 		}
 		catch (SQLException ex)
 		{
