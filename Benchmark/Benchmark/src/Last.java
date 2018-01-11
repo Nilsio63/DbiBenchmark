@@ -17,7 +17,7 @@ public class Last extends Thread
 	private static final java.util.SplittableRandom random = new java.util.SplittableRandom();
 	
 	private PreparedStatement prepStmtKontostand = null;
-	
+	private CallableStatement callStmtEinzahlung = null;
 	private PreparedStatement prepStmtAnalyse = null;
 	
 	public int anzahl;
@@ -117,7 +117,7 @@ public class Last extends Thread
 		int timeSpan = timeInSec * 1000;
 		long timeStart = System.currentTimeMillis();
 		
-		initPreparedStatements();
+		initGlobalStatements();
 		
 		int count = 0;
 
@@ -130,7 +130,7 @@ public class Last extends Thread
 			Thread.sleep(50);
 		}
 		
-		closePreparedStatements();
+		closeGlobalStatements();
 
 		if (setValues)
 		{
@@ -178,25 +178,29 @@ public class Last extends Thread
 	}
 	
 	/**
-	 * Initialisiert die PreparedStatements.
+	 * Initialisiert die globalen Statements.
 	 * @throws SQLException
 	 */
-	private void initPreparedStatements()
+	private void initGlobalStatements()
 		throws SQLException
 	{
 		prepStmtKontostand = con.prepareStatement("select balance from accounts where accid = ?");
+		
+		callStmtEinzahlung = con.prepareCall("{call einzahlung(?,?,?,?,?)}");
 		
 		prepStmtAnalyse = con.prepareStatement("select count(*) as anz from history where delta = ?");
 	}
 	
 	/**
-	 * Schlieﬂt die PreparedStatements.
+	 * Schliesst die globalen Statements.
 	 * @throws SQLException
 	 */
-	private void closePreparedStatements()
+	private void closeGlobalStatements()
 		throws SQLException
 	{
 		prepStmtKontostand.close();
+		
+		callStmtEinzahlung.close();
 		
 		prepStmtAnalyse.close();
 	}
@@ -233,21 +237,15 @@ public class Last extends Thread
 	private int einzahlung(int accid, int tellerid, int branchid, int delta)
 		throws SQLException
 	{
-		CallableStatement statement = con.prepareCall("{call einzahlung(?,?,?,?,?)}");
+		callStmtEinzahlung.setInt(1, accid);
+		callStmtEinzahlung.setInt(2, tellerid);
+		callStmtEinzahlung.setInt(3, branchid);
+		callStmtEinzahlung.setInt(4, delta);
+		callStmtEinzahlung.registerOutParameter(5, java.sql.Types.INTEGER);
 		
-		statement.setInt(1, accid);
-		statement.setInt(2, tellerid);
-		statement.setInt(3, branchid);
-		statement.setInt(4, delta);
-		statement.registerOutParameter(5, java.sql.Types.INTEGER);
+		callStmtEinzahlung.executeUpdate();
 		
-		statement.executeUpdate();
-		
-		int balance = statement.getInt(5);
-		
-		statement.close();
-		
-		return balance;
+		return callStmtEinzahlung.getInt(5);
 	}
 	
 	/**
